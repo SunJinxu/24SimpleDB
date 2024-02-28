@@ -1,0 +1,23 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build24SimpleDb",
+            "type": "shell",    // cmake也是shell
+            "command": "cmake", // cmake命令
+            "args": [   // 参数列表
+                "--build",
+                "."
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/build"   // 执行任务的预设路径
+            },
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$gcc"    // 问题捕获
+        }
+    ]
+}

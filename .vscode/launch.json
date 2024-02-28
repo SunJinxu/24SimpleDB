@@ -1,0 +1,22 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug_24SimpleDb",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/src/main",
+            "args": [],
+            "stopAtEntry": false,
+            "preLaunchTask": "build24SimpleDb",
+            "cwd": "${workspaceFolder}",    // 执行Debug操作前的预设当前路径
+            "environment": [],
+            "externalConsole": true,    // 打开外部控制台接收
+            "MIMode": "lldb"
+        }
+
+    ]
+}

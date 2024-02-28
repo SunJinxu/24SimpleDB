@@ -1,52 +1,29 @@
-# Prerequisites
-*.d
-
-# Object files
+# 忽略编译产生的文件和目录
+build/
+out/
 *.o
-*.ko
 *.obj
-*.elf
-
-# Linker output
-*.ilk
-*.map
-*.exp
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
 *.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
 
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
+# # 忽略 VSCode 配置文件（暂时保存）
+# .vscode/
 
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
+# 忽略依赖库的安装目录
+node_modules/
+vendor/
+
+# 忽略临时文件和编辑器自动生成的文件
+*.swp
+*.swo
+*.swn
+*.swo
+*.swn
+*.bak
+*~
+
+# 忽略一些系统或编辑器生成的文件
+.DS_Store
+thumbs.db
+
+# 忽略本地配置文件（例如个人配置文件、本地环境配置文件）
+*.config.local
