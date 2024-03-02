@@ -7,4 +7,6 @@ project(24SimpleDb VERSION 1.0)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-add_subdirectory(./src)
+add_subdirectory(src)
+add_subdirectory(test)
+add_subdirectory(include/googletest)

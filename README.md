@@ -46,3 +46,33 @@ SQL中的command分为两种: 一种为`meta-commands`, 另一种为`普通comma
 * `select` -- 列举全部记录
   
   `select`
+
+## 4 Our first tests(and bugs)
+### 4.1 使用GoogleTest搭建自己的测试框架
+* 将googletest作为子模块导入至本地项目的include的文件夹中
+
+  `git submodule add https://github.com/google/googletest.git include/googletest`
+* 修改根目录的`CMakeLists.txt`文件
+
+    ```
+    add_subdirectory(test)
+    add_subdirectory(include/googletest)
+    ```
+* 新建test文件夹
+  * 创建db_test.cpp作为测试文件，头部`#include <gtest/gtest.h>`
+  * 添加`CMakeLists.txt`文件，加入如下内容
+    ```
+    cmake_minimum_required(VERSION 3.10)
+
+    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+    set(CMAKE_BUILD_TYPE Debug)
+
+    add_executable(dbTest db_test.cpp)
+    target_link_libraries(dbTest gtest_main)
+    target_include_directories(dbTest PRIVATE ${GTEST_INCLUDE_DIRS})
+    ```
+* 重新编译整个项目
+* 增加新的launch.json
+### 4.2 编写自己的测试用例（TODO）
