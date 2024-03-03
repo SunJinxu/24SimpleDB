@@ -74,6 +74,9 @@
         "unordered_set": "cpp",
         "variant": "cpp",
         "algorithm": "cpp",
-        "compiler.h": "c"
+        "compiler.h": "c",
+        "stdio.h": "c",
+        "stdlib.h": "c",
+        "pager.h": "c"
     }
 }

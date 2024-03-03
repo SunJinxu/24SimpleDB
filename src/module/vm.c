@@ -1,11 +1,13 @@
 #include <string.h>
+#include "db.h"
 #include "vm.h"
 
 /**
  * 处理meta-commands
 */
-MetaCommandResult ExecuteMetaCommand(InputBuffer *InputBuffer) {
+MetaCommandResult ExecuteMetaCommand(InputBuffer *InputBuffer, Table *table) {
     if (strcmp(InputBuffer->buffer, ".exit") == 0) {
+        DbClose(table);
         exit(EXIT_SUCCESS);
     }
     return META_COMMAND_UNRECOGNIZED_COMMAND;

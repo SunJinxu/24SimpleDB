@@ -23,7 +23,7 @@ typedef struct {
 /**
  * 处理meta-commands
 */
-MetaCommandResult ExecuteMetaCommand(InputBuffer *InputBuffer);
+MetaCommandResult ExecuteMetaCommand(InputBuffer *InputBuffer, Table *table);
 
 /**
  * Statement执行方法

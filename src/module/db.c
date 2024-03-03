@@ -1,6 +1,6 @@
-#include "stdlib.h"
-#include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
+#include "pager.h"
 #include "db.h"
 
 /**
@@ -15,12 +15,10 @@ void PrintRow(Row *row) {
 */
 void *RowSlot(Table *table, uint32_t rowNum) {
     uint32_t pageNum = rowNum / ROWS_PER_PAGE;  // 可以判断出任何一个row都会精准匹配到对应的page中
-    if (table->pages[pageNum] == NULL) {
-        table->pages[pageNum] = malloc(PAGE_SIZE);
-    }
+    void *page = GetPage(table->pager, pageNum);
     uint32_t rowOffset = rowNum % ROWS_PER_PAGE;
     uint32_t byteOffset = rowOffset * ROW_SIZE;
-    return (char *)(table->pages[pageNum]) + byteOffset;
+    return page + byteOffset;
 }
 
 /**
@@ -28,8 +26,8 @@ void *RowSlot(Table *table, uint32_t rowNum) {
 */
 void SerializeRow(Row *row, void *compacted) {
     memcpy((char *)compacted, &(row->id), ID_SIZE);
-    memcpy((char *)compacted + USERNAME_OFFSET, &(row->username), USERNAME_SIZE);
-    memcpy((char *)compacted + EMAIL_OFFSET, &(row->email), EMAIL_SIZE);
+    strncpy(compacted + USERNAME_OFFSET, row->username, USERNAME_SIZE);
+    strncpy(compacted + EMAIL_OFFSET, row->email, EMAIL_SIZE);
 }
 
 void DeserializeRow(void *compacted, Row *row) {
@@ -39,20 +37,49 @@ void DeserializeRow(void *compacted, Row *row) {
 }
 
 /**
- * Table创建与销毁方法
+ * 文件名打开DB
 */
-Table *CreateTable() {
+Table *DbOpen(const char *fileName) {
+    Pager *pager = PagerOpen(fileName);
+    uint32_t rowNum = pager->fileLength / ROW_SIZE;
+
     Table *table = (Table *)malloc(sizeof(Table));
-    table->rowNum = 0;
-    for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++) {
-        table->pages[i] = NULL;
-    }
+    table->rowNum = rowNum;
+    table->pager = pager;
     return table;
 }
 
-void DestroyTable(Table *table) {
-    for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++) {
-        free(table->pages[i]);
+/**
+ * 关闭DB，并刷新到文件
+*/
+void DbClose(Table *table) {
+    Pager *pager = table->pager;
+    uint32_t pageFullNum = table->rowNum / ROWS_PER_PAGE;
+    for (uint32_t i = 0; i < pageFullNum; i++) {
+        if (pager->pages[i] == NULL) {
+            continue;
+        }
+        PagerFlush(pager, i, PAGE_SIZE);
+        free(pager->pages[i]);
+        pager->pages[i] = NULL;
     }
+
+    // 最后可能有一个未满的页
+    uint32_t remainRowNum = table->rowNum % ROWS_PER_PAGE;
+    if (remainRowNum > 0) {
+        if (pager->pages[pageFullNum] != NULL) {
+            PagerFlush(pager, pageFullNum, remainRowNum * ROW_SIZE);
+            free(pager->pages[pageFullNum]);
+            pager->pages[pageFullNum] = NULL;
+        }
+    }
+
+    int result = close(pager->fileDescriptor);
+    if (result == -1) {
+        printf("close db failed, exit!\n");
+        exit(EXIT_FAILURE);
+    }
+
+    free(pager);
     free(table);
 }

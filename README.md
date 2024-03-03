@@ -88,6 +88,14 @@ SQL中的command分为两种: 一种为`meta-commands`, 另一种为`普通comma
 实际上的搭建并不是4.2节中提到的mock，那种方式适合用于调用第三方库，并mock库中的函数定义的情景。 
 
 在本项目中，实际上只需要继承::testing::Test类作为基础设施类，并直接在测试用例中调用src目录中声明的函数即可。这样的好处在于可以通过InputBuffer自定义输入，来判断输出情况。
+
 ## 5 重构目前的代码
 * 根据前3章的内容，将`main.c`文件拆分到当前的新建`module`目录下的多个功能`common`, `sql compiler`, `visual machine`, `db`划分的子文件中。在新建`module`目录下加入CMakeLists.txt文件，将子模块统一编译成名为`db`的静态链接库（**也是为后续mock C函数做准备，如果不是库中的函数，目前了解到的方法没有能够直接mock当前工作目录中声明的函数的方法**）
 * 在 `test`目录下增加CMakeLists.txt文件，将上一步中的`db`静态库连接到当前可执行文件中。并编译为新的可执行文件.
+
+## 6 Persistence to Disk
+*"Nothing in the world can take the place of persistence. - Calvin Coolidge"* 
+
+使用`Pager`抽象来获取db中的`page`，首先它会从缓存中寻找，如果找不到，则会进一步去磁盘寻找(参考对应章节的`sqlite`架构图查看其整体位置)。其中含有文件标识符、记录总数以及`page`数组。 
+
+`Table`中保存`Pager`指针作为其读取和保存记录的中介，同时销毁`Table`时，会通过`Pager`刷盘。

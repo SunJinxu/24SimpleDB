@@ -2,9 +2,13 @@
 #define DB_COMMON_H
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #define DB_PROMPT "24SimpleDb > "
 #define DB_EXIT_SIGN ".exit"
+
+#define TABLE_MAX_PAGES 100
+static const uint32_t PAGE_SIZE  = 4096;    // 与大部分操作系统的内存页大小相同
 
 #define true 1
 #define false 0

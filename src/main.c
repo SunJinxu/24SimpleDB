@@ -5,6 +5,7 @@
 #include "module/compiler.h"
 #include "module/vm.h"
 #include "module/db.h"
+#include "module/pager.h"
 
 /**
  * 打印提示消息
@@ -13,18 +14,25 @@ void PrintDbPrompt() {
     printf(DB_PROMPT);
 }
 
-int main() {
-    InputBuffer *userInput = CreateInputBuffer();
-    Table *table = CreateTable();
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("Must input a db filename, exit!\n");
+        exit(EXIT_FAILURE);
+    }
+
     printf("welcome to use 24SimpleDb!\n");
 
+    const char *dbFileName = argv[1];
+    Table *table = DbOpen(dbFileName);
+
+    InputBuffer *userInput = CreateInputBuffer();
     while (true) {
         PrintDbPrompt();
         ReadCliInput(userInput);
 
         // 处理meta_command
         if (userInput->buffer[0] == '.') {
-            MetaCommandResult metaRet = ExecuteMetaCommand(userInput);
+            MetaCommandResult metaRet = ExecuteMetaCommand(userInput, table);
             switch (metaRet) {
                 case META_COMMAND_SUCCESS:
                     break;
@@ -67,7 +75,7 @@ int main() {
         }
     }
 
-    DestroyTable(table);
+    DbClose(table);
     DestroyInputBuffer(userInput);
     return 0;
 }
