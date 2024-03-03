@@ -52,8 +52,14 @@ int main() {
                         break;
                 }
                 break;
+            case PREPARE_STRING_TOO_LONG:
+                printf("Input string too long error '%s'\n", userInput->buffer);
+                break;
             case PREPARE_SYNTAX_ERROR:
                 printf("Prepare Syntax error '%s'\n", userInput->buffer);
+                break;
+            case PREPARE_NEGATIVE_ID:
+                printf("id must no be negative! \n");
                 break;
             case PREPARE_UNRECOGNIZED_STATEMENT:
                 printf("Prepare statement failed '%s'\n", userInput->buffer);

@@ -7,7 +7,7 @@
  * Row的打印方法
 */
 void PrintRow(Row *row) {
-    printf("ID: %d, USERNAME: %s, EMAIL: %s", row->id, row->username, row->email);
+    printf("ID: %d, USERNAME: %s, EMAIL: %s\n", row->id, row->username, row->email);
 }
 
 /**

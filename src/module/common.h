@@ -38,11 +38,13 @@ typedef enum {
 } MetaCommandResult;
 
 /**
- * 准备sql语句的返回值枚举类`
+ * 准备sql语句的返回值枚举类
 */
 typedef enum {
     PREPARE_SUCCESS,
     PREPARE_SYNTAX_ERROR,   // 解析错误
+    PREPARE_STRING_TOO_LONG,    // 超出字段限制
+    PREPARE_NEGATIVE_ID,    // 负数id
     PREPARE_UNRECOGNIZED_STATEMENT
 } PrepareResult;
 

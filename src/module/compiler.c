@@ -38,17 +38,39 @@ void ReadCliInput(InputBuffer *inputBuffer) {
 /**
  * Statement处理方法
 */
+PrepareResult PrepareInsert(InputBuffer *inputBuffer, Statement *statement) {
+    statement->statementType = STATEMENT_INSERT;
+
+    char* keyword = strtok(inputBuffer->buffer, " ");
+    char* id = strtok(NULL, " ");
+    char* username = strtok(NULL, " ");
+    char* email = strtok(NULL, " ");
+
+    if (id == NULL || username == NULL || email == NULL) {
+        return PREPARE_SYNTAX_ERROR;
+    }
+
+    int rowId = atoi(id);
+    if (rowId < 0) {
+        return PREPARE_NEGATIVE_ID;
+    }
+    if (strlen(username) > COLUMN_USERNAME_SIZE) {
+        return PREPARE_STRING_TOO_LONG;
+    }
+    if (strlen(email) > COLUMN_EMAIL_SIZE) {
+        return PREPARE_STRING_TOO_LONG;
+    }
+
+    statement->rowToInsert.id = rowId;
+    strcpy(statement->rowToInsert.username, username);
+    strcpy(statement->rowToInsert.email, email);
+
+    return PREPARE_SUCCESS;
+}
+
 PrepareResult PrepareStatement(InputBuffer *inputBuffer, Statement *statement) {
     if (strncmp(inputBuffer->buffer, "insert", 6) == 0) {
-        statement->statementType = STATEMENT_INSERT;
-        int parsedArgc = sscanf(inputBuffer->buffer, "insert %d %s %s",
-                                &(statement->rowToInsert.id),
-                                statement->rowToInsert.username,
-                                statement->rowToInsert.email);
-        if (parsedArgc < 3) {
-            return PREPARE_SYNTAX_ERROR;
-        }
-        return PREPARE_SUCCESS;
+        return PrepareInsert(inputBuffer, statement);
     } else if (strcmp(inputBuffer->buffer, "select") == 0) {
         statement->statementType = STATEMENT_SELECT;
         return PREPARE_SUCCESS;
