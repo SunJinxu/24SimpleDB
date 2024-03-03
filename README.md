@@ -75,4 +75,16 @@ SQL中的command分为两种: 一种为`meta-commands`, 另一种为`普通comma
     ```
 * 重新编译整个项目
 * 增加新的launch.json
-### 4.2 编写自己的测试用例（TODO）
+### 4.2 **使用gtest编写C的测试用例**
+* step 1. 编写C函数的包装类，目的是将C代码中的函数放到C++中的类中
+* step 2. 编写C函数的包装类的Mock类，目的是为了Mock掉C函数包装类的方法
+* step 3. 测试的基础设施，继承Test类。其中包含了一个C函数包装类的Mock类的指针静态成员
+* step 4. 在文件中将基础设施中将Mock类的指针成员声明出来
+* step 5. 重新定义原C函数的实现，内部调用基础设施Mock指针的方法
+* step 6. 用户编写自己期望的Mock方式，则可以正确mock
+
+  `Ref: https://stackoverflow.com/questions/31989040/can-gmock-be-used-for-stubbing-c-functions`
+
+## 5 重构目前的代码
+* 根据前3章的内容，将`main.c`文件拆分到当前的新建`module`目录下的多个功能`common`, `sql compiler`, `visual machine`, `db`划分的子文件中。在新建`module`目录下加入CMakeLists.txt文件，将子模块统一编译成名为`db`的静态链接库（**也是为后续mock C函数做准备，如果不是库中的函数，目前了解到的方法没有能够直接mock当前工作目录中声明的函数的方法**）
+* 在 `test`目录下增加CMakeLists.txt文件，将上一步中的`db`静态库连接到当前可执行文件中。并编译为新的可执行文件.
