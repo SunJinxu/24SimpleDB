@@ -84,7 +84,10 @@ SQL中的command分为两种: 一种为`meta-commands`, 另一种为`普通comma
 * step 6. 用户编写自己期望的Mock方式，则可以正确mock
 
   `Ref: https://stackoverflow.com/questions/31989040/can-gmock-be-used-for-stubbing-c-functions`
+### 4.3 **本测试gtest用例的搭建**
+实际上的搭建并不是4.2节中提到的mock，那种方式适合用于调用第三方库，并mock库中的函数定义的情景。 
 
+在本项目中，实际上只需要继承::testing::Test类作为基础设施类，并直接在测试用例中调用src目录中声明的函数即可。这样的好处在于可以通过InputBuffer自定义输入，来判断输出情况。
 ## 5 重构目前的代码
 * 根据前3章的内容，将`main.c`文件拆分到当前的新建`module`目录下的多个功能`common`, `sql compiler`, `visual machine`, `db`划分的子文件中。在新建`module`目录下加入CMakeLists.txt文件，将子模块统一编译成名为`db`的静态链接库（**也是为后续mock C函数做准备，如果不是库中的函数，目前了解到的方法没有能够直接mock当前工作目录中声明的函数的方法**）
 * 在 `test`目录下增加CMakeLists.txt文件，将上一步中的`db`静态库连接到当前可执行文件中。并编译为新的可执行文件.

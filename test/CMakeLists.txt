@@ -6,5 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_BUILD_TYPE Debug)
 
 add_executable(dbTest db_test.cpp)
-target_link_libraries(dbTest gtest_main)
-target_include_directories(dbTest PRIVATE ${GTEST_INCLUDE_DIRS})
+
+target_link_libraries(dbTest db gtest_main gmock_main)
+target_include_directories(dbTest PUBLIC ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+                                        ${CMAKE_SOURCE_DIR}/src/module)
