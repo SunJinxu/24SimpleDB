@@ -16,9 +16,9 @@ void PrintRow(Row *row) {
 void *RowSlot(Table *table, uint32_t rowNum) {
     uint32_t pageNum = rowNum / ROWS_PER_PAGE;  // 可以判断出任何一个row都会精准匹配到对应的page中
     if (table->pages[pageNum] == NULL) {
-        table->pages[pageNum] = malloc(PAGE_SIZE * sizeof(char));
+        table->pages[pageNum] = malloc(PAGE_SIZE);
     }
-    uint32_t rowOffset = rowNum / ROWS_PER_PAGE;
+    uint32_t rowOffset = rowNum % ROWS_PER_PAGE;
     uint32_t byteOffset = rowOffset * ROW_SIZE;
     return (char *)(table->pages[pageNum]) + byteOffset;
 }
