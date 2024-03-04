@@ -19,6 +19,9 @@ Pager *PagerOpen(const char *fileName);
 */
 void PagerFlush(Pager *pager, uint32_t pageNum, uint32_t size);
 
+/**
+ * 根据给定pageNum，pager从内存中获取或者从磁盘加载对应的page，并返回page的指针
+*/
 void *GetPage(Pager *pager, uint32_t pageNum);
 
 #endif

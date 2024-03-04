@@ -8,8 +8,10 @@
             "name": "Debug_24SimpleDb",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/src/main",
-            "args": [],
+            "program": "${workspaceFolder}/build/src/db",
+            "args": [
+                "${workspaceFolder}/simpledb.db"
+            ],
             "stopAtEntry": false,
             "preLaunchTask": "build24SimpleDb",
             "cwd": "${workspaceFolder}",    // 执行Debug操作前的预设当前路径

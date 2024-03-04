@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define DB_PROMPT "24SimpleDb > "
 #define DB_EXIT_SIGN ".exit"

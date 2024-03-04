@@ -99,3 +99,22 @@ SQL中的command分为两种: 一种为`meta-commands`, 另一种为`普通comma
 使用`Pager`抽象来获取db中的`page`，首先它会从缓存中寻找，如果找不到，则会进一步去磁盘寻找(参考对应章节的`sqlite`架构图查看其整体位置)。其中含有文件标识符、记录总数以及`page`数组。 
 
 `Table`中保存`Pager`指针作为其读取和保存记录的中介，同时销毁`Table`时，会通过`Pager`刷盘。
+
+## 7 The Cursor Abstraction
+该章节的目的是为了BTree的实现做准备。
+
+我们想要用Cursor实现的目的：
+* 创建一个指向table头部的cursor
+* 创建一个指向table尾部的cursor
+* 访问cursor指向的行
+* 将cursor移动向下一行
+
+同样我们还希望cursor有以下扩展功能:
+* 删除cursor指向的行
+* 修改cursor指向的行
+* 根据指定ID搜索table，并创建一个指向该ID记录的cursor
+
+本节中实现的ursor功能:
+* 创建位于table表头的cursor
+* 创建位于table末尾的cursor
+* 根据cursor返回其对应在内存page中的row的slot位置

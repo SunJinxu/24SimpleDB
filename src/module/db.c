@@ -3,12 +3,6 @@
 #include "pager.h"
 #include "db.h"
 
-/**
- * Row的打印方法
-*/
-void PrintRow(Row *row) {
-    printf("ID: %d, USERNAME: %s, EMAIL: %s\n", row->id, row->username, row->email);
-}
 
 /**
  * 根据指定的rowNum返回对应的rowSlot(槽)指针

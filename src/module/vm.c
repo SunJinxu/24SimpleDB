@@ -1,6 +1,14 @@
 #include <string.h>
 #include "db.h"
+#include "cursor.h"
 #include "vm.h"
+
+/**
+ * Row的打印方法
+*/
+void PrintRow(Row *row) {
+    printf("ID: %d, USERNAME: %s, EMAIL: %s\n", row->id, row->username, row->email);
+}
 
 /**
  * 处理meta-commands
@@ -13,24 +21,35 @@ MetaCommandResult ExecuteMetaCommand(InputBuffer *InputBuffer, Table *table) {
     return META_COMMAND_UNRECOGNIZED_COMMAND;
 }
 
-
+/**
+ * insert执行函数（插入至table最末尾）
+*/
 ExecuteResult ExecuteInsert(Statement *statement, Table *table) {
     if (table->rowNum >= TABLE_MAX_ROWS) {
         return EXECUTE_TABLE_FULL;
     }
     Row *row = &(statement->rowToInsert);
-    void *slot = RowSlot(table, table->rowNum);
+    Cursor *cursor = TableEnd(table);
+    void *slot = CursorValue(cursor);
     SerializeRow(row, slot);
     table->rowNum++;
+    free(cursor);
     return EXECUTE_SUCCESS;
 }
 
+/**
+ * select执行函数（打印table中所有row）
+*/
 ExecuteResult ExecuteSelect(Statement *statement, Table *table) {
-    for (uint32_t i = 0; i < table->rowNum; i++) {
-        Row row;
-        DeserializeRow(RowSlot(table, i), &row);
+    Cursor *cursor = TableStart(table);
+    Row row;
+    while (!(cursor->endOfTable)) {
+        void *slot = CursorValue(cursor);
+        DeserializeRow(slot, &row);
         PrintRow(&row);
+        CursorAdvance(cursor);
     }
+    free(cursor);
     return EXECUTE_SUCCESS;
 }
 

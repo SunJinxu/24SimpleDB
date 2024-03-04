@@ -49,17 +49,12 @@ void SerializeRow(Row *row, void *compacted);
 void DeserializeRow(void *compacted, Row *row);
 
 /**
- * Row打印方法
-*/
-void PrintRow(Row *row);
-
-/**
  * 文件名打开DB
 */
 Table *DbOpen(const char *fileName);
 
 /**
- * 关闭DB
+ * 关闭DB，刷新pager所有更新内容至磁盘
 */
 void DbClose(Table *table);
 
