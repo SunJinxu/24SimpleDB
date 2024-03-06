@@ -20,7 +20,7 @@ typedef struct {
  * Table结构体
 */
 typedef struct {
-    uint32_t rowNum;
+    uint32_t rootPageNum;   // A btree is identified by its root node page number
     Pager *pager;   // Table使用pager访问页面
 } Table;
 
@@ -32,10 +32,6 @@ static const uint32_t ID_OFFSET = 0;
 static const uint32_t USERNAME_OFFSET = (ID_OFFSET + ID_SIZE);
 static const uint32_t EMAIL_OFFSET =  (USERNAME_OFFSET + USERNAME_SIZE);
 static const uint32_t ROW_SIZE  = (ID_SIZE + USERNAME_SIZE + EMAIL_SIZE);
-
-// 定义Table一些属性
-static const uint32_t ROWS_PER_PAGE = (PAGE_SIZE / ROW_SIZE);
-static const uint32_t TABLE_MAX_ROWS = (ROWS_PER_PAGE * TABLE_MAX_PAGES);
 
 /**
  * 根据指定的rowNum返回对应的rowSlot(槽)指针

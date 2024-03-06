@@ -2,6 +2,7 @@
 #define DB_VISUAL_MACHINE_H
 
 #include "common.h"
+#include "cursor.h"
 #include "db.h"
 
 /**
@@ -29,5 +30,10 @@ MetaCommandResult ExecuteMetaCommand(InputBuffer *InputBuffer, Table *table);
  * Statement执行方法
 */
 ExecuteResult ExecuteStatement(Statement *statement, Table *table);
+
+/**
+ * 插入一个叶子节点
+*/
+void LeafNodeInsert(Cursor *cursor, uint32_t key, Row *value);
 
 #endif

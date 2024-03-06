@@ -9,7 +9,8 @@
 */
 typedef struct {
     Table *table;   // 指向的table
-    uint32_t rowNum;
+    uint32_t pageNum;   // 指向的page
+    uint32_t cellNum;   // 指向的cell
     bool endOfTable;    // 指向table末尾位置（新增row在此插入）
 } Cursor;
 

@@ -19,6 +19,13 @@ Pager *PagerOpen(const char *fileName) {
     Pager *pager = (Pager *)malloc(sizeof(Pager));
     pager->fileDescriptor = fd;
     pager->fileLength = fileLength;
+    pager->pageNums = fileLength / PAGE_SIZE;
+
+    if (fileLength % PAGE_SIZE) {
+        printf("Db file is not a whole number of pages, exit!");
+        exit(EXIT_FAILURE);
+    }
+
     for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++) {
         pager->pages[i] = NULL;
     }
@@ -54,11 +61,15 @@ void *GetPage(Pager *pager, uint32_t pageNum) {
             exit(EXIT_FAILURE);
         }
         pager->pages[pageNum] = page;
+        // 由于PagerFlush的方法根据pager->pageNums作为尾部哨兵，因此当发现修改脏页>=时，需要后移哨兵
+        if (pageNum >= pager->pageNums) {
+            pager->pageNums++;
+        }
     }
     return pager->pages[pageNum];
 }
 
-void PagerFlush(Pager *pager, uint32_t pageNum, uint32_t size) {
+void PagerFlush(Pager *pager, uint32_t pageNum) {
     if (pager->pages[pageNum] == NULL) {
         printf("try to flush null page,exit!\n");
         exit(EXIT_FAILURE);
@@ -70,7 +81,7 @@ void PagerFlush(Pager *pager, uint32_t pageNum, uint32_t size) {
         exit(EXIT_FAILURE);
     }
 
-    ssize_t writeBytes = write(pager->fileDescriptor, pager->pages[pageNum], size);
+    ssize_t writeBytes = write(pager->fileDescriptor, pager->pages[pageNum], PAGE_SIZE);
     if (writeBytes == -1) {
         printf("try to flush page failed, exit!\n");
         exit(EXIT_FAILURE);
