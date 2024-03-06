@@ -31,7 +31,8 @@ typedef struct InputBuffer {
 typedef enum {
     EXECUTE_TABLE_FULL,
     EXECUTE_SUCCESS,
-    EXECUTE_FAIL
+    EXECUTE_FAIL,
+    EXECUTE_DUPLICATE_KEY
 } ExecuteResult;
 
 /**

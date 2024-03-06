@@ -137,3 +137,7 @@ B-Tree存储的特点在于，它的每个node中可以存放多个row，因此�
 
 `cursor`中也不再是对`table`中的`row`的指针，而是对`table`的`page`的`cell`的指针
 
+## 9 Binary Search and Duplicate Keys
+这章将会实现按主键顺序进行插入的功能，以此来实现加速查找行、拒绝重复主键的功能
+
+

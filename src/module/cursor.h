@@ -21,6 +21,11 @@ Cursor *TableStart(Table *table);
 Cursor *TableEnd(Table *table);
 
 /**
+ * 寻找指定key对应的cursor
+*/
+Cursor *TableFind(Table *table, uint32_t key);
+
+/**
  * 移动cursor至下一个位置
 */
 void CursorAdvance(Cursor *cursor);

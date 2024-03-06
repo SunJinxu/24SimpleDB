@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) {
                     printf("Unrecognized command '%s'\n", userInput->buffer);
                     break;
             }
+            free(userInput->buffer);
             continue;
         }
         
@@ -51,6 +52,9 @@ int main(int argc, char *argv[]) {
                 switch (ExecuteStatement(&statement, table)) {
                     case EXECUTE_SUCCESS:
                         printf("executed.\n");
+                        break;
+                    case EXECUTE_DUPLICATE_KEY:
+                        printf("error! duplicate key.\n");
                         break;
                     case EXECUTE_FAIL:
                         printf("error! execute failed.\n");
@@ -73,6 +77,7 @@ int main(int argc, char *argv[]) {
                 printf("Prepare statement failed '%s'\n", userInput->buffer);
                 break;
         }
+        // free(userInput->buffer);
     }
 
     DbClose(table);

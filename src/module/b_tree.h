@@ -69,6 +69,16 @@ void *LeafNodeValue(void *node, uint32_t cellNum);
 void InitializeLeafNode(void *node);
 
 /**
+ * 获取node类型
+*/
+NodeType GetNodeType(void *node);
+
+/**
+ * 设置node类型
+*/
+void SetNodeType(void *node, NodeType type);
+
+/**
  * 树的可视化
 */
 void PrintLeafNode(void *node);

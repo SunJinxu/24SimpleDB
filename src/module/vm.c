@@ -29,12 +29,23 @@ MetaCommandResult ExecuteMetaCommand(InputBuffer *InputBuffer, Table *table) {
 */
 ExecuteResult ExecuteInsert(Statement *statement, Table *table) {
     void *node = GetPage(table->pager, table->rootPageNum);
-    if (*(LeafNodeCellNums(node)) >= LEAF_NODE_MAX_CELLS) {
+    uint32_t cellNums = *LeafNodeCellNums(node);
+    if (cellNums >= LEAF_NODE_MAX_CELLS) {
         return EXECUTE_TABLE_FULL;
     }
 
-    Cursor *cursor = TableEnd(table);
-    LeafNodeInsert(cursor, statement->rowToInsert.id, &(statement->rowToInsert));
+    Row* rowToInsert = &(statement->rowToInsert);
+    uint32_t keyToInsert = rowToInsert->id;
+    Cursor* cursor = TableFind(table, keyToInsert);
+
+    if (cursor->cellNum < cellNums) {
+        uint32_t ketAtIndex = *LeafNodeKey(node, cursor->cellNum);
+        if (ketAtIndex == keyToInsert) {
+            return EXECUTE_DUPLICATE_KEY;
+        }
+    }
+
+    LeafNodeInsert(cursor, rowToInsert->id, rowToInsert);
     return EXECUTE_SUCCESS;
 }
 

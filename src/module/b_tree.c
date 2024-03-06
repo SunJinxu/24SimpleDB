@@ -18,7 +18,17 @@ void *LeafNodeValue(void *node, uint32_t cellNum) {
 }
 
 void InitializeLeafNode(void *node) {
+    SetNodeType(node, NODE_LEAF);
     *LeafNodeCellNums(node) = 0;
+}
+
+NodeType GetNodeType(void *node) {
+    uint8_t type =  *(uint8_t *)(node + NODE_TYPE_OFFSET);
+    return (NodeType)type;
+}
+
+void SetNodeType(void *node, NodeType type) {
+    *((uint8_t *)(node + NODE_TYPE_OFFSET)) = (uint8_t)type;
 }
 
 void PrintLeafNode(void *node) {
