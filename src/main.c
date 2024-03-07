@@ -40,7 +40,6 @@ int main(int argc, char *argv[]) {
                     printf("Unrecognized command '%s'\n", userInput->buffer);
                     break;
             }
-            free(userInput->buffer);
             continue;
         }
         
@@ -77,7 +76,6 @@ int main(int argc, char *argv[]) {
                 printf("Prepare statement failed '%s'\n", userInput->buffer);
                 break;
         }
-        // free(userInput->buffer);
     }
 
     DbClose(table);

@@ -5,7 +5,7 @@
 Pager *PagerOpen(const char *fileName) {
     int fd = open(fileName, // 文件名
                     O_RDWR |    // 读写模式
-                    O_CREAT |   // 如果不存在，创建该文件
+                    O_CREAT ,   // 如果不存在，创建该文件
                     S_IWUSR |   // 用户写权限
                     S_IRUSR);   // 用户读权限
     
@@ -41,7 +41,7 @@ void *GetPage(Pager *pager, uint32_t pageNum) {
 
     if (pager->pages[pageNum] == NULL) {    // 未命中缓存
         // 分配缓存并加载
-        void *page = malloc(sizeof(PAGE_SIZE));
+        void *page = malloc(PAGE_SIZE);
         
         // 获取Pager总页数，(如果不是恰好为整数页，需要向上取1页)
         uint32_t pagerCurNum = pager->fileLength / PAGE_SIZE;

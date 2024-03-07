@@ -41,5 +41,4 @@ void PrintLeafNode(void *node) {
         printf("%u: ", i);
         PrintRow(&row);
     }
-    printf("\n");
 }
