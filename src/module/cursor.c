@@ -1,4 +1,4 @@
-#include "db.h"
+#include "table.h"
 #include "b_tree.h"
 #include "cursor.h"
 

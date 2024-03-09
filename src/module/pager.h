@@ -25,4 +25,9 @@ void PagerFlush(Pager *pager, uint32_t pageNum);
 */
 void *GetPage(Pager *pager, uint32_t pageNum);
 
+/**
+ * 获取当前未使用过的page号
+*/
+uint32_t GetUnusedPageNum(Pager *pager);
+
 #endif

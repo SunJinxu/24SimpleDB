@@ -2,7 +2,7 @@
 #define DB_BTREE_H
 
 #include "common.h"
-#include "db.h"
+#include "table.h"
 
 /**
  * B-Tree节点类型
@@ -44,6 +44,31 @@ static const uint32_t LEAF_NODE_SPACE_FOR_CELLS = PAGE_SIZE - LEAF_NODE_HEADER_S
 static const uint32_t LEAF_NODE_MAX_CELLS = LEAF_NODE_SPACE_FOR_CELLS / LEAF_NODE_CELL_SIZE;
 
 /**
+ * 用于分割叶子节点的参数
+*/
+static const uint32_t LEAF_NODE_RIGHT_SPLIT_COUNT = (LEAF_NODE_MAX_CELLS + 1) >> 1;
+static const uint32_t LEAF_NODE_LEFT_SPLIT_COUNT = (LEAF_NODE_MAX_CELLS + 1) - LEAF_NODE_RIGHT_SPLIT_COUNT;
+
+/**
+ * 内部节点头布局
+ * 内部节点含有含有common header、key的数量、最右侧child的page number
+ * 内部节点的key总比它的child指针少一个
+*/
+static const uint32_t INTERNAL_NODE_NUM_KEYS_SIZE = sizeof(uint32_t);
+static const uint32_t INTERNAL_NODE_NUM_KEYS_OFFSET = COMMON_NODE_HEADER_SIZE;
+static const uint32_t INTERNAL_NODE_RIGHT_CHILD_SIZE = sizeof(uint32_t);
+static const uint32_t INTERNAL_NODE_RIGHT_CHILD_OFFSET = INTERNAL_NODE_NUM_KEYS_OFFSET + INTERNAL_NODE_NUM_KEYS_SIZE;
+static const uint32_t INTERNAL_NODE_HEADER_SIZE = COMMON_NODE_HEADER_SIZE + INTERNAL_NODE_NUM_KEYS_SIZE + INTERNAL_NODE_RIGHT_CHILD_SIZE;
+/**
+ * 内部节点的body包含一个cell array，每个cell包含一个key和一个child指针
+ * 每个key都是左侧节点中包含的最大key
+*/
+static const uint32_t INTERNAL_NODE_CHILD_SIZE = sizeof(uint32_t);
+static const uint32_t INTERNAL_NODE_KEY_SIZE = sizeof(uint32_t);
+static const uint32_t INTERNAL_NODE_CELL_SIZE = INTERNAL_NODE_CHILD_SIZE + INTERNAL_NODE_KEY_SIZE;
+
+
+/**
  * 获取当前node上总共保存了多少row
 */
 uint32_t *LeafNodeCellNums(void *node);
@@ -64,9 +89,10 @@ uint32_t *LeafNodeKey(void *node, uint32_t cellNum);
 void *LeafNodeValue(void *node, uint32_t cellNum);
 
 /**
- * 初始化叶子node
+ * 初始化node
 */
 void InitializeLeafNode(void *node);
+void InitializeInternalNode(void *node);
 
 /**
  * 获取node类型
@@ -82,4 +108,24 @@ void SetNodeType(void *node, NodeType type);
  * 树的可视化
 */
 void PrintLeafNode(void *node);
+
+/**
+ * Internal key的read和write方法
+*/
+uint32_t *InternalNodeKeyNums(void *node);
+uint32_t *InternalNodeRightChild(void *node);
+uint32_t *InternalNodeCell(void *node, uint32_t cellNum);
+uint32_t *InternalNodeChild(void *node, uint32_t childNum);
+uint32_t *InternalNodeKey(void *node, uint32_t keyNum);
+
+/**
+ * 获取当前node最大的key
+*/
+uint32_t GetNodeMaxKey(void *node);
+
+/**
+ * set get root key
+*/
+bool IsNodeRoot(void *node);
+void SetNodeRoot(void *node, bool isRoot);
 #endif

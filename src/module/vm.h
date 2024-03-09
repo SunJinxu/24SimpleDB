@@ -3,7 +3,7 @@
 
 #include "common.h"
 #include "cursor.h"
-#include "db.h"
+#include "table.h"
 
 /**
  * Statement类型枚举
@@ -35,5 +35,10 @@ ExecuteResult ExecuteStatement(Statement *statement, Table *table);
  * 插入一个叶子节点
 */
 void LeafNodeInsert(Cursor *cursor, uint32_t key, Row *value);
+
+/**
+ * 分裂和生成新node的算法
+*/
+void LeafNodeSplitAndInsert(Cursor *cursor, uint32_t key, Row *value);
 
 #endif

@@ -4,7 +4,7 @@
 #include "module/common.h"
 #include "module/compiler.h"
 #include "module/vm.h"
-#include "module/db.h"
+#include "module/table.h"
 #include "module/pager.h"
 
 /**

@@ -2,7 +2,7 @@
 #define DB_CURSOR_H
 
 #include "common.h"
-#include "db.h"
+#include "table.h"
 
 /**
  * Cursor结构

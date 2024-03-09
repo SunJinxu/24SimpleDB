@@ -141,3 +141,7 @@ B-Tree存储的特点在于，它的每个node中可以存放多个row，因此�
 这章将会实现按主键顺序进行插入的功能，以此来实现加速查找行、拒绝重复主键的功能
 
 
+## 10 Splitting a Leaf Node
+第9章中，虽然将Page的布局改成了BTree LeafNode节点的形式，但是实际上目前还没有完全BTree结构，因为只构造了一个叶子节点，并且没有internal node的存在。  
+
+本节中将会加入internal node，并且加入节点的分裂过程。算法参考: `<<SQLite Database System: Design and Implementation>>`

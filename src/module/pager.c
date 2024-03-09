@@ -34,7 +34,7 @@ Pager *PagerOpen(const char *fileName) {
 }
 
 void *GetPage(Pager *pager, uint32_t pageNum) {
-    if (pageNum >= TABLE_MAX_PAGES) {
+    if (pageNum > TABLE_MAX_PAGES) {
         printf("fetch num is larger than max page limit\n");
         exit(EXIT_FAILURE);
     }
@@ -49,21 +49,19 @@ void *GetPage(Pager *pager, uint32_t pageNum) {
             pagerCurNum++;
         }
 
-        if (pagerCurNum < pageNum) {
-            exit(EXIT_FAILURE);
+        if (pageNum <= pagerCurNum) {
+            // 加载缓存至新页面
+            lseek(pager->fileDescriptor, pageNum * PAGE_SIZE, SEEK_SET);    // 移动pager描述符至寻找页面位置
+            ssize_t readBytes = read(pager->fileDescriptor, page, PAGE_SIZE);  // 读取pager描述符页面内容至page
+            if (readBytes == -1) {
+                printf("try to get page failed, exit!\n");
+                exit(EXIT_FAILURE);
+            }
         }
 
-        // 加载缓存至新页面
-        lseek(pager->fileDescriptor, pageNum * PAGE_SIZE, SEEK_SET);    // 移动pager描述符至寻找页面位置
-        ssize_t readBytes = read(pager->fileDescriptor, page, PAGE_SIZE);  // 读取pager描述符页面内容至page
-        if (readBytes == -1) {
-            printf("try to get page failed, exit!\n");
-            exit(EXIT_FAILURE);
-        }
         pager->pages[pageNum] = page;
-        // 由于PagerFlush的方法根据pager->pageNums作为尾部哨兵，因此当发现修改脏页>=时，需要后移哨兵
         if (pageNum >= pager->pageNums) {
-            pager->pageNums++;
+            pager->pageNums = pageNum + 1;
         }
     }
     return pager->pages[pageNum];
@@ -86,4 +84,8 @@ void PagerFlush(Pager *pager, uint32_t pageNum) {
         printf("try to flush page failed, exit!\n");
         exit(EXIT_FAILURE);
     }
+}
+
+uint32_t GetUnusedPageNum(Pager *pager) {
+    return pager->pageNums;
 }

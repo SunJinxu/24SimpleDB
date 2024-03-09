@@ -2,7 +2,7 @@
 #include <string.h>
 #include "pager.h"
 #include "b_tree.h"
-#include "db.h"
+#include "table.h"
 
 
 // /**
@@ -44,6 +44,7 @@ Table *DbOpen(const char *fileName) {
     if (pager->pageNums == 0) {
         void *rootNode = GetPage(pager, 0);
         InitializeLeafNode(rootNode);
+        SetNodeRoot(rootNode, true);
     }
     return table;
 }
