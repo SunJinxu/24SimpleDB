@@ -129,6 +129,8 @@ void LeafNodeSplitAndInsert(Cursor *cursor, uint32_t key, Row *value) {
     uint32_t unusedPageNum = GetUnusedPageNum(cursor->table->pager);
     void *newPage = GetPage(cursor->table->pager, unusedPageNum);
     InitializeLeafNode(newPage);
+    *LeafNodeNextLeaf(newPage) = *LeafNodeNextLeaf(oldPage);
+    *LeafNodeNextLeaf(oldPage) = unusedPageNum;
     // 2 将原有已满节点的一半迁移过去，新加入的节点在过程中插入
     for (int32_t i = LEAF_NODE_MAX_CELLS; i >= 0; i--) {
         void *destPage;

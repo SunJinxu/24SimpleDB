@@ -3,13 +3,11 @@
 #include "cursor.h"
 
 Cursor *TableStart(Table *table) {
-    Cursor *cursor = (Cursor *)malloc(sizeof(Cursor));
-    cursor->table = table;
-    cursor->pageNum = table->rootPageNum;
-    cursor->cellNum = 0;
-    void *rootNode = GetPage(table->pager, table->rootPageNum);
-    uint32_t nodeNumCells = *(LeafNodeCellNums(rootNode));
-    cursor->endOfTable = (nodeNumCells == 0);
+    Cursor *cursor = TableFind(table, 0);
+
+    void *node = GetPage(table->pager, cursor->pageNum);
+    uint32_t cellNums = *LeafNodeCellNums(node);
+    cursor->endOfTable = (cellNums == 0);
     return cursor;
 }
 
@@ -100,7 +98,15 @@ void CursorAdvance(Cursor *cursor) {
     void *node = GetPage(cursor->table->pager, pageNum);
     cursor->cellNum++;
     if (cursor->cellNum >= *(LeafNodeCellNums(node))) {
-        cursor->endOfTable = true;
+        // 跳转至下一个sibling
+        uint32_t nextPageNum = *LeafNodeNextLeaf(node);
+        if (nextPageNum == 0) {
+            // 到达当前leaf最右侧节点
+            cursor->endOfTable = true;
+        } else {
+            cursor->pageNum = nextPageNum;
+            cursor->cellNum = 0;
+        }
     }
 }
 

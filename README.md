@@ -150,3 +150,8 @@ B-Tree存储的特点在于，它的每个node中可以存放多个row，因此�
 在10节完成后，还缺少一个重要的功能，那就是`TableFind`搜索行时，除了`LeafNodeFind`之外，还需要加入跨越内部节点的搜索功能`InternalNodeFind`
 
 `InternalNodeFind`方法是用的也是二分查找动作，采用的是根据InternalNode中保存的Key和ChildPointer来实现的，在查找的过程中使用递归查找的方式，确保能够查找到最终的叶子节点。
+
+## 12 Scanning a Multi-Level B-Tree
+为了实现select语句快速扫描整个表，需要在叶子节点的头布局中加入一个指向相邻叶子节点的指针
+
+在TableStart方法获取到第一个叶子节点后，可以沿着指针扫描整个表

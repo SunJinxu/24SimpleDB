@@ -21,6 +21,7 @@ void InitializeLeafNode(void *node) {
     SetNodeType(node, NODE_LEAF);
     SetNodeRoot(node, false);
     *LeafNodeCellNums(node) = 0;
+    *LeafNodeNextLeaf(node) = 0;    // sibling设置为0，表示不存在
 }
 
 void InitializeInternalNode(void *node) {
@@ -95,4 +96,8 @@ bool IsNodeRoot(void *node) {
 void SetNodeRoot(void *node, bool isRoot) {
     uint8_t value = isRoot;
     *((uint8_t *)(node + IS_ROOT_OFFSET)) = value;
+}
+
+uint32_t *LeafNodeNextLeaf(void *node) {
+    return node + LEAF_NODE_NEXT_LEAF_OFFSET;
 }

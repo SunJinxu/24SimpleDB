@@ -1,7 +1,10 @@
 #ifndef DB_UTIL_H
 #define DB_UTIL_H
 
+#include "common.h"
 #include "table.h"
+
+void PrintDbPrompt();
 
 /**
  * 打印BTree的常数信息

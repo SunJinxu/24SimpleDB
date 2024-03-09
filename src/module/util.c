@@ -3,6 +3,13 @@
 #include "common.h"
 #include "util.h"
 
+/**
+ * 打印提示消息
+*/
+void PrintDbPrompt() {
+    printf(DB_PROMPT);
+}
+
 void PrintConstants() {
     printf("ROW_SIZE: %u\n", ROW_SIZE);
     printf("COMMON_NODE_HEADER_SIZE: %u\n", COMMON_NODE_HEADER_SIZE);

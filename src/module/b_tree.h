@@ -30,7 +30,9 @@ static const uint32_t COMMON_NODE_HEADER_SIZE = NODE_TYPE_SIZE + IS_ROOT_SIZE + 
 */
 static const uint32_t LEAF_NODE_CELL_NUMS_SIZE = sizeof(uint32_t);
 static const uint32_t LEAF_NODE_CELL_NUMS_OFFSET = COMMON_NODE_HEADER_SIZE;
-static const uint32_t LEAF_NODE_HEADER_SIZE = COMMON_NODE_HEADER_SIZE + LEAF_NODE_CELL_NUMS_SIZE;
+static const uint32_t LEAF_NODE_NEXT_LEAF_SIZE = sizeof(uint32_t);  // 指向相邻叶子节点指针
+static const uint32_t LEAF_NODE_NEXT_LEAF_OFFSET = COMMON_NODE_HEADER_SIZE + LEAF_NODE_CELL_NUMS_SIZE;
+static const uint32_t LEAF_NODE_HEADER_SIZE = COMMON_NODE_HEADER_SIZE + LEAF_NODE_CELL_NUMS_SIZE + LEAF_NODE_NEXT_LEAF_SIZE;
 
 /**
  * 叶子节点布局
@@ -115,7 +117,7 @@ void PrintLeafNode(void *node);
 uint32_t *InternalNodeKeyNums(void *node);
 uint32_t *InternalNodeRightChild(void *node);
 uint32_t *InternalNodeCell(void *node, uint32_t cellNum);
-uint32_t *InternalNodeChild(void *node, uint32_t childNum);
+uint32_t *InternalNodeChild(void *node, uint32_t childNum); // childNum==keyNum，返回最右侧rigthChild
 uint32_t *InternalNodeKey(void *node, uint32_t keyNum);
 
 /**
@@ -128,4 +130,10 @@ uint32_t GetNodeMaxKey(void *node);
 */
 bool IsNodeRoot(void *node);
 void SetNodeRoot(void *node, bool isRoot);
+
+/**
+ * 获取当前叶子节点的sibling
+*/
+uint32_t *LeafNodeNextLeaf(void *node);
+
 #endif
