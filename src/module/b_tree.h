@@ -69,6 +69,9 @@ static const uint32_t INTERNAL_NODE_CHILD_SIZE = sizeof(uint32_t);
 static const uint32_t INTERNAL_NODE_KEY_SIZE = sizeof(uint32_t);
 static const uint32_t INTERNAL_NODE_CELL_SIZE = INTERNAL_NODE_CHILD_SIZE + INTERNAL_NODE_KEY_SIZE;
 
+// 内部节点最多只能有3个key
+static const uint32_t INTERNAL_NODE_MAX_CELLS = 3;
+
 
 /**
  * 获取当前node上总共保存了多少row

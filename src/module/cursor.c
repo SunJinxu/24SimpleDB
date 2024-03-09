@@ -1,3 +1,4 @@
+#include <string.h>
 #include "table.h"
 #include "b_tree.h"
 #include "cursor.h"
@@ -53,13 +54,11 @@ Cursor *LeafNodeFind(Table *table, uint32_t pageNum, uint32_t key) {
 }
 
 /**
- * InternalNode的二分查找过程
- * 需要注意的是，internal node的每个cell中的key的值，都是cell中child节点的key最大值
+ * InternalNode的查找包含指定key的child
+ * 二分查找
 */
-Cursor *InternalNodeFind(Table* table, uint32_t pageNum, uint32_t key) {
-    void *node = GetPage(table->pager, pageNum);
+uint32_t InternalNodeFindChild(void *node, uint32_t key) {
     uint32_t keyNums = *InternalNodeKeyNums(node);
-    // 二分查找确定需要搜寻的子节点
     uint32_t minIndex = 0;
     uint32_t maxIndex = keyNums;
     while (minIndex != maxIndex) {
@@ -71,8 +70,17 @@ Cursor *InternalNodeFind(Table* table, uint32_t pageNum, uint32_t key) {
             minIndex = index + 1;
         }
     }
-    // 根据子节点类型决定下一步查找动作
-    uint32_t childNum = *InternalNodeChild(node, minIndex);
+    return minIndex;
+}
+
+/**
+ * InternalNode的二分查找过程
+ * 需要注意的是，internal node的每个cell中的key的值，都是cell中child节点的key最大值
+*/
+Cursor *InternalNodeFind(Table* table, uint32_t pageNum, uint32_t key) {
+    void *node = GetPage(table->pager, pageNum);
+    uint32_t childIndex = InternalNodeFindChild(node, key);
+    uint32_t childNum = *InternalNodeChild(node, childIndex);
     void *child = GetPage(table->pager, childNum);
     switch(GetNodeType(child)) {
         case NODE_LEAF:
@@ -114,4 +122,38 @@ void *CursorValue(Cursor *cursor) {
     uint32_t pageNum = cursor->pageNum;
     void *page = GetPage(cursor->table->pager, pageNum);
     return LeafNodeValue(page, cursor->cellNum);
+}
+
+void InternalNodeInsert(Table *table, uint32_t parentPageNum, uint32_t childPageNum) {
+    void *parent = GetPage(table->pager, parentPageNum);
+    void *child = GetPage(table->pager, childPageNum);
+    // 获取到child在parent internal node中应该插入的index位置
+    uint32_t childMaxKey = GetNodeMaxKey(child);
+    uint32_t index = InternalNodeFindChild(parent, childMaxKey);
+    // 更新internal node中的key数量
+    uint32_t originKeyNums = *InternalNodeKeyNums(parent);
+    *InternalNodeKeyNums(parent) = originKeyNums + 1;
+
+    if (originKeyNums >= INTERNAL_NODE_MAX_CELLS) {
+        printf("need to implement splitting internal node\n");
+        exit(EXIT_FAILURE);
+    }
+    // 根据child中的max key的大小选择不同的插入方式
+    uint32_t rightChildPageNum = *InternalNodeRightChild(parent);   // 大于最大key的child page num
+    void *rightChild = GetPage(table->pager, rightChildPageNum);
+
+    if (childMaxKey > GetNodeMaxKey(rightChild)) {  // childMaxKey大于父节点最右侧子节点，将原右子节点移动至新CELL中
+        *InternalNodeChild(parent, originKeyNums) = rightChildPageNum;
+        *InternalNodeKey(parent, originKeyNums) = GetNodeMaxKey(rightChild);
+        *InternalNodeRightChild(parent) = childPageNum;
+    } else {    // 如果没有大于最右侧子节点
+        /* 旧cell移动，为新cell分配空间 */
+        for (uint32_t i = originKeyNums; i > index; i--) {
+            void *destination = InternalNodeCell(parent, i);
+            void *source = InternalNodeCell(parent, i - 1);
+            memcpy(destination, source, INTERNAL_NODE_CELL_SIZE);
+        }
+        *InternalNodeChild(parent, index) = childPageNum;
+        *InternalNodeKey(parent, index) = childMaxKey;
+    }
 }

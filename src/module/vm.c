@@ -99,8 +99,17 @@ void LeafNodeInsert(Cursor *cursor, uint32_t key, Row *value) {
     SerializeRow(value, LeafNodeValue(node, cursor->cellNum));
 }
 
+uint32_t *NodeParent(void *node) {
+    return node + PARENT_POINTER_OFFSET;
+}
+
+void UpdateInternalNodeKey(void *node, uint32_t oldKey, uint32_t newKey) {
+    uint32_t oldChildIndex = InternalNodeFindChild(node, oldKey);
+    *InternalNodeKey(node, oldChildIndex) = newKey;
+}
+
 /**
- * 创建一个新节点，以右侧节点为参数，分配一个新page存放左侧节点
+ * 创建一个新节点，以右侧节点为参数，分配一个新page存放左侧节点，过程中rootpage始终是0号页面
 */
 void CreateNewRoot(Table *table, uint32_t rightChildPageNum) {
     // 处理对root节点的分割
@@ -121,14 +130,18 @@ void CreateNewRoot(Table *table, uint32_t rightChildPageNum) {
     uint32_t leftChildMaxKey = GetNodeMaxKey(leftChild);
     *InternalNodeKey(root, 0) = leftChildMaxKey;
     *InternalNodeRightChild(root) = rightChildPageNum;
+    *NodeParent(leftChild) = table->rootPageNum;
+    *NodeParent(rightChild) = table->rootPageNum;
 }
 
 void LeafNodeSplitAndInsert(Cursor *cursor, uint32_t key, Row *value) {
     // 1 创建一个新节点
     void *oldPage = GetPage(cursor->table->pager, cursor->pageNum);
+    uint32_t oldMax = GetNodeMaxKey(oldPage);
     uint32_t unusedPageNum = GetUnusedPageNum(cursor->table->pager);
     void *newPage = GetPage(cursor->table->pager, unusedPageNum);
     InitializeLeafNode(newPage);
+    *NodeParent(newPage) = *NodeParent(oldPage);
     *LeafNodeNextLeaf(newPage) = *LeafNodeNextLeaf(oldPage);
     *LeafNodeNextLeaf(oldPage) = unusedPageNum;
     // 2 将原有已满节点的一半迁移过去，新加入的节点在过程中插入
@@ -152,11 +165,14 @@ void LeafNodeSplitAndInsert(Cursor *cursor, uint32_t key, Row *value) {
     }
     *LeafNodeCellNums(oldPage) = LEAF_NODE_LEFT_SPLIT_COUNT;
     *LeafNodeCellNums(newPage) = LEAF_NODE_RIGHT_SPLIT_COUNT;
-    // 3 更新父节点或者创建父节点
-    if (IsNodeRoot(oldPage)) {
-        return CreateNewRoot(cursor->table, unusedPageNum);
-    } else {
-        printf("need to implement updating parent node after spliting");
-        exit(EXIT_FAILURE);
+    
+    if (IsNodeRoot(oldPage)) {  // 3 创建Root节点
+        CreateNewRoot(cursor->table, unusedPageNum);
+    } else {    // 更新父节点
+        uint32_t parentPageNum = *NodeParent(oldPage);
+        uint32_t newMax = GetNodeMaxKey(oldPage);
+        void *parent = GetPage(cursor->table->pager, parentPageNum);
+        UpdateInternalNodeKey(parent, oldMax, newMax);
+        InternalNodeInsert(cursor->table, parentPageNum, unusedPageNum);
     }
 }

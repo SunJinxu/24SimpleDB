@@ -76,7 +76,7 @@ uint32_t *InternalNodeChild(void *node, uint32_t childNum) {
 }
 
 uint32_t *InternalNodeKey(void *node, uint32_t keyNum) {
-    return InternalNodeCell(node, keyNum) + INTERNAL_NODE_CHILD_SIZE;
+    return (void *)InternalNodeCell(node, keyNum) + INTERNAL_NODE_CHILD_SIZE;
 }
 
 uint32_t GetNodeMaxKey(void *node) {

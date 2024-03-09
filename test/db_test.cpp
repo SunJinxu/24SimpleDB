@@ -3,10 +3,10 @@
 #include <memory>
 
 extern "C" {
-#include "util.h"
-#include "compiler.h"
-#include "vm.h"
-#include "table.h"
+#include "module/util.h"
+#include "module/compiler.h"
+#include "module/vm.h"
+#include "module/table.h"
 }
 
 /**
@@ -39,20 +39,33 @@ TEST_F(TestDbFixture, DbTestDemo) {
     memcpy(statement.rowToInsert.username, username, COLUMN_USERNAME_SIZE + 1);
     memcpy(statement.rowToInsert.email, email, COLUMN_EMAIL_SIZE + 1);
 
-    for (uint32_t i = 1; i < 16; i++) {
+    for (uint32_t i = 1; i < 22; i++) {
         statement.rowToInsert.id = i; 
         ExecuteStatement(&statement, table);
     }
 
-    // statement.rowToInsert.id = 20; 
-    // ExecuteStatement(&statement, table);
+    statement.rowToInsert.id = 30; 
+    ExecuteStatement(&statement, table);
 
-    // statement.rowToInsert.id = 18; 
-    // ExecuteStatement(&statement, table);
+    statement.rowToInsert.id = 28; 
+    ExecuteStatement(&statement, table);
+
+    statement.rowToInsert.id = 25; 
+    ExecuteStatement(&statement, table);
+
+    statement.rowToInsert.id = 23; 
+    ExecuteStatement(&statement, table);
+
+    statement.rowToInsert.id = 26; 
+    ExecuteStatement(&statement, table);
+
+    statement.rowToInsert.id = 27; 
+    ExecuteStatement(&statement, table);
+
     Statement selectState = {
         .statementType = STATEMENT_SELECT
     };
-    ExecuteStatement(&selectState,table);
+    // ExecuteStatement(&selectState,table);
 
-    // PrintTree(table->pager, 0, 0);
+    PrintTree(table->pager, 0, 0);
 }
