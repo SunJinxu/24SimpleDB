@@ -3,10 +3,10 @@
 #include <memory>
 
 extern "C" {
+#include "util.h"
 #include "compiler.h"
 #include "vm.h"
 #include "table.h"
-#include "util.h"
 }
 
 /**
@@ -39,10 +39,16 @@ TEST_F(TestDbFixture, InsertMaxLenTest) {
     memcpy(statement.rowToInsert.username, username, COLUMN_USERNAME_SIZE + 1);
     memcpy(statement.rowToInsert.email, email, COLUMN_EMAIL_SIZE + 1);
 
-    for (uint32_t i = 0; i < 14; i++) {
+    for (uint32_t i = 0; i < 12; i++) {
         statement.rowToInsert.id = i; 
         ExecuteStatement(&statement, table);
     }
+
+    statement.rowToInsert.id = 20; 
+    ExecuteStatement(&statement, table);
+
+    statement.rowToInsert.id = 18; 
+    ExecuteStatement(&statement, table);
 
     PrintTree(table->pager, 0, 0);
 }

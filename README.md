@@ -145,3 +145,8 @@ B-Tree存储的特点在于，它的每个node中可以存放多个row，因此�
 第9章中，虽然将Page的布局改成了BTree LeafNode节点的形式，但是实际上目前还没有完全BTree结构，因为只构造了一个叶子节点，并且没有internal node的存在。  
 
 本节中将会加入internal node，并且加入节点的分裂过程。算法参考: `<<SQLite Database System: Design and Implementation>>`
+
+## 11 Recursively Searching the B-Tree
+在10节完成后，还缺少一个重要的功能，那就是`TableFind`搜索行时，除了`LeafNodeFind`之外，还需要加入跨越内部节点的搜索功能`InternalNodeFind`
+
+`InternalNodeFind`方法是用的也是二分查找动作，采用的是根据InternalNode中保存的Key和ChildPointer来实现的，在查找的过程中使用递归查找的方式，确保能够查找到最终的叶子节点。

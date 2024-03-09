@@ -54,6 +54,36 @@ Cursor *LeafNodeFind(Table *table, uint32_t pageNum, uint32_t key) {
     return cursor;
 }
 
+/**
+ * InternalNode的二分查找过程
+ * 需要注意的是，internal node的每个cell中的key的值，都是cell中child节点的key最大值
+*/
+Cursor *InternalNodeFind(Table* table, uint32_t pageNum, uint32_t key) {
+    void *node = GetPage(table->pager, pageNum);
+    uint32_t keyNums = *InternalNodeKeyNums(node);
+    // 二分查找确定需要搜寻的子节点
+    uint32_t minIndex = 0;
+    uint32_t maxIndex = keyNums;
+    while (minIndex != maxIndex) {
+        uint32_t index = (minIndex + maxIndex) >> 1;
+        uint32_t keyToRight = *InternalNodeKey(node, index);
+        if (keyToRight >= key) {
+            maxIndex = index;
+        } else {
+            minIndex = index + 1;
+        }
+    }
+    // 根据子节点类型决定下一步查找动作
+    uint32_t childNum = *InternalNodeChild(node, minIndex);
+    void *child = GetPage(table->pager, childNum);
+    switch(GetNodeType(child)) {
+        case NODE_LEAF:
+            return LeafNodeFind(table, childNum, key);
+        case NODE_INTERNAL:
+            return InternalNodeFind(table, childNum, key);
+    }
+}
+
 Cursor *TableFind(Table *table, uint32_t key) {
     uint32_t rootPageNum = table->rootPageNum;
     void* rootNode = GetPage(table->pager, rootPageNum);
@@ -61,8 +91,7 @@ Cursor *TableFind(Table *table, uint32_t key) {
     if (GetNodeType(rootNode) == NODE_LEAF) {
         return LeafNodeFind(table, rootPageNum, key);
     } else {
-        printf("Need to implement searching an internal node\n");
-        exit(EXIT_FAILURE);
+        return InternalNodeFind(table, rootPageNum, key);
     }
 }
 
