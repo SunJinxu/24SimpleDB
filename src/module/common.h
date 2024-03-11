@@ -9,6 +9,7 @@
 #define DB_EXIT_SIGN ".exit"
 
 #define TABLE_MAX_PAGES 100
+#define INVALID_PAGE_NUM UINT32_MAX
 static const uint32_t PAGE_SIZE  = 4096;    // 与大部分操作系统的内存页大小相同
 
 #define true 1

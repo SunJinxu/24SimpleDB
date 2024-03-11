@@ -28,6 +28,7 @@ void InitializeInternalNode(void *node) {
     SetNodeType(node, NODE_INTERNAL);
     SetNodeRoot(node, false);
     *InternalNodeKeyNums(node) = 0;
+    *InternalNodeRightChild(node) = INVALID_PAGE_NUM;
 }
 
 NodeType GetNodeType(void *node) {
@@ -69,9 +70,19 @@ uint32_t *InternalNodeChild(void *node, uint32_t childNum) {
         printf("try to access child num(%u) > num keys(%u)", childNum, numKeys);
         exit(EXIT_FAILURE);
     } else if (childNum == numKeys) {
-        return InternalNodeRightChild(node);
+        uint32_t *rightChild = InternalNodeRightChild(node);
+        if (*rightChild == INVALID_PAGE_NUM) {
+            printf("try to access the right child, but no valid page\n");
+            exit(EXIT_FAILURE);
+        }
+        return rightChild;
     } else {
-        return InternalNodeCell(node, childNum);
+        uint32_t *child = InternalNodeCell(node, childNum);
+        if (*child == INVALID_PAGE_NUM) {
+            printf("try to access the child, but no valid page\n");
+            exit(EXIT_FAILURE);
+        }
+        return child;
     }
 }
 
@@ -79,13 +90,12 @@ uint32_t *InternalNodeKey(void *node, uint32_t keyNum) {
     return (void *)InternalNodeCell(node, keyNum) + INTERNAL_NODE_CHILD_SIZE;
 }
 
-uint32_t GetNodeMaxKey(void *node) {
-    switch(GetNodeType(node)) {
-        case NODE_INTERNAL:
-            return *InternalNodeKey(node, *InternalNodeKeyNums(node) - 1);
-        case NODE_LEAF:
-            return *LeafNodeKey(node, *LeafNodeCellNums(node) - 1);
+uint32_t GetNodeMaxKey(Pager *pager, void *node) {
+    if (GetNodeType(node) == NODE_LEAF) {
+        return *LeafNodeKey(node, *LeafNodeCellNums(node) - 1);
     }
+    void *rightChild = GetPage(pager, *InternalNodeRightChild(node));
+    return GetNodeMaxKey(pager, rightChild);
 }
 
 bool IsNodeRoot(void *node) {

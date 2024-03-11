@@ -160,3 +160,10 @@ B-Tree存储的特点在于，它的每个node中可以存放多个row，因此�
 叶子节点满了之后，需要执行一系列动作，具体为：
 * 拆分叶子节点
 * 更新parent node中的cell信息
+
+## 14 SPliting Internal Nodes
+当继续插入节点后，可能会导致Internal node的分裂，此时需要执行以下几个步骤：
+* 将原有node进行拆分，创建一个sibling，保存1/2 - 1的原node的key，剩下的一个key作为父节点
+* 将原node的key迁移到新的sibling上
+* 更新原有node在parent中标记的maxKey（因为进行了分裂，所以不同了）
+* 将新的sibling也插入parent node中（可能导致parent node的分裂）

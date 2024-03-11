@@ -49,14 +49,16 @@ void PrintTree(Pager *pager, uint32_t pageNum, uint32_t indentationLevel) {
             numKeys = *InternalNodeKeyNums(node);
             Indent(indentationLevel);
             printf("- internal (size %d)\n", numKeys);
-            for (uint32_t i = 0; i < numKeys; i++) {
-                child = *InternalNodeChild(node, i);
+            if (numKeys > 0) {
+                for (uint32_t i = 0; i < numKeys; i++) {
+                    child = *InternalNodeChild(node, i);
+                    PrintTree(pager, child, indentationLevel + 1);
+                    Indent(indentationLevel + 1);
+                    printf(" - key %d\n", *InternalNodeKey(node, i));
+                }
+                child = *InternalNodeRightChild(node);
                 PrintTree(pager, child, indentationLevel + 1);
-                Indent(indentationLevel + 1);
-                printf(" - key %d\n", *InternalNodeKey(node, i));
             }
-            child = *InternalNodeRightChild(node);
-            PrintTree(pager, child, indentationLevel + 1);
             break;
     }
 }

@@ -126,7 +126,7 @@ uint32_t *InternalNodeKey(void *node, uint32_t keyNum);
 /**
  * 获取当前node最大的key
 */
-uint32_t GetNodeMaxKey(void *node);
+uint32_t GetNodeMaxKey(Pager *pager, void *node);
 
 /**
  * set get root key

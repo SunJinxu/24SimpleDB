@@ -3,6 +3,8 @@
 #include <memory>
 
 extern "C" {
+#include "time.h"
+#include "stdlib.h"
 #include "module/util.h"
 #include "module/compiler.h"
 #include "module/vm.h"
@@ -15,7 +17,6 @@ extern "C" {
 class TestDbFixture : public testing::Test {
 protected:
     void SetUp() override {
-        
     }
     void TearDown() override {
     }
@@ -39,33 +40,12 @@ TEST_F(TestDbFixture, DbTestDemo) {
     memcpy(statement.rowToInsert.username, username, COLUMN_USERNAME_SIZE + 1);
     memcpy(statement.rowToInsert.email, email, COLUMN_EMAIL_SIZE + 1);
 
-    for (uint32_t i = 1; i < 22; i++) {
-        statement.rowToInsert.id = i; 
+    srand(time(NULL));
+
+    for (uint32_t i = 1; i < 50; i++) {
+        statement.rowToInsert.id = rand(); 
         ExecuteStatement(&statement, table);
     }
-
-    statement.rowToInsert.id = 30; 
-    ExecuteStatement(&statement, table);
-
-    statement.rowToInsert.id = 28; 
-    ExecuteStatement(&statement, table);
-
-    statement.rowToInsert.id = 25; 
-    ExecuteStatement(&statement, table);
-
-    statement.rowToInsert.id = 23; 
-    ExecuteStatement(&statement, table);
-
-    statement.rowToInsert.id = 26; 
-    ExecuteStatement(&statement, table);
-
-    statement.rowToInsert.id = 27; 
-    ExecuteStatement(&statement, table);
-
-    Statement selectState = {
-        .statementType = STATEMENT_SELECT
-    };
-    // ExecuteStatement(&selectState,table);
 
     PrintTree(table->pager, 0, 0);
 }

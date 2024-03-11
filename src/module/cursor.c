@@ -1,6 +1,7 @@
 #include <string.h>
 #include "table.h"
 #include "b_tree.h"
+#include "vm.h"
 #include "cursor.h"
 
 Cursor *TableStart(Table *table) {
@@ -128,23 +129,30 @@ void InternalNodeInsert(Table *table, uint32_t parentPageNum, uint32_t childPage
     void *parent = GetPage(table->pager, parentPageNum);
     void *child = GetPage(table->pager, childPageNum);
     // 获取到child在parent internal node中应该插入的index位置
-    uint32_t childMaxKey = GetNodeMaxKey(child);
+    uint32_t childMaxKey = GetNodeMaxKey(table->pager, child);
     uint32_t index = InternalNodeFindChild(parent, childMaxKey);
-    // 更新internal node中的key数量
     uint32_t originKeyNums = *InternalNodeKeyNums(parent);
-    *InternalNodeKeyNums(parent) = originKeyNums + 1;
 
+    // case1: 插入节点导致InternalNode分裂的情况
     if (originKeyNums >= INTERNAL_NODE_MAX_CELLS) {
-        printf("need to implement splitting internal node\n");
-        exit(EXIT_FAILURE);
+        InternalNodeSplitAndInsert(table, parentPageNum, childPageNum);
+        return;
     }
+
+    // case2: 插入节点不导致InternalNode分裂的情况
     // 根据child中的max key的大小选择不同的插入方式
     uint32_t rightChildPageNum = *InternalNodeRightChild(parent);   // 大于最大key的child page num
-    void *rightChild = GetPage(table->pager, rightChildPageNum);
+    // 一个拥有最右子节点为INVALID_PAGE_NUM的parent节点,是一个空节点
+    if (rightChildPageNum == INVALID_PAGE_NUM) {    // 直接将child作为parent节点的最右子节点的方法
+        *InternalNodeRightChild(parent) = childPageNum;
+        return;
+    }
 
-    if (childMaxKey > GetNodeMaxKey(rightChild)) {  // childMaxKey大于父节点最右侧子节点，将原右子节点移动至新CELL中
+    void *rightChild = GetPage(table->pager, rightChildPageNum);
+    *InternalNodeKeyNums(parent) = originKeyNums+ 1;
+    if (childMaxKey > GetNodeMaxKey(table->pager, rightChild)) {  // childMaxKey大于父节点最右侧子节点，将原右子节点移动至新CELL中
         *InternalNodeChild(parent, originKeyNums) = rightChildPageNum;
-        *InternalNodeKey(parent, originKeyNums) = GetNodeMaxKey(rightChild);
+        *InternalNodeKey(parent, originKeyNums) = GetNodeMaxKey(table->pager, rightChild);
         *InternalNodeRightChild(parent) = childPageNum;
     } else {    // 如果没有大于最右侧子节点
         /* 旧cell移动，为新cell分配空间 */
