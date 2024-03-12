@@ -135,8 +135,15 @@ bool IsNodeRoot(void *node);
 void SetNodeRoot(void *node, bool isRoot);
 
 /**
+ * 将internal node中的old key更新为new key
+*/
+void UpdateInternalNodeKey(void *node, uint32_t oldKey, uint32_t newKey);
+
+/**
  * 获取当前叶子节点的sibling
 */
 uint32_t *LeafNodeNextLeaf(void *node);
+
+uint32_t *NodeParent(void *node);
 
 #endif

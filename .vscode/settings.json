@@ -80,6 +80,7 @@
         "pager.h": "c",
         "cursor.h": "c",
         "util.h": "c",
-        "b_tree.h": "c"
+        "b_tree.h": "c",
+        "b_tree_helper.h": "c"
     }
 }

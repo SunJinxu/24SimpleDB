@@ -90,14 +90,6 @@ uint32_t *InternalNodeKey(void *node, uint32_t keyNum) {
     return (void *)InternalNodeCell(node, keyNum) + INTERNAL_NODE_CHILD_SIZE;
 }
 
-uint32_t GetNodeMaxKey(Pager *pager, void *node) {
-    if (GetNodeType(node) == NODE_LEAF) {
-        return *LeafNodeKey(node, *LeafNodeCellNums(node) - 1);
-    }
-    void *rightChild = GetPage(pager, *InternalNodeRightChild(node));
-    return GetNodeMaxKey(pager, rightChild);
-}
-
 bool IsNodeRoot(void *node) {
     uint8_t value = *((uint8_t *)(node + IS_ROOT_OFFSET));
     return (bool)value;
@@ -110,4 +102,8 @@ void SetNodeRoot(void *node, bool isRoot) {
 
 uint32_t *LeafNodeNextLeaf(void *node) {
     return node + LEAF_NODE_NEXT_LEAF_OFFSET;
+}
+
+uint32_t *NodeParent(void *node) {
+    return node + PARENT_POINTER_OFFSET;
 }

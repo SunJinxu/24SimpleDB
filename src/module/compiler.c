@@ -20,7 +20,6 @@ void DestroyInputBuffer(InputBuffer *inputBuffer) {
     free(inputBuffer);
 }
 
-
 /**
  * 读取命令行输入至缓存中
 */

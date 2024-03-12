@@ -35,14 +35,4 @@ void CursorAdvance(Cursor *cursor);
 */
 void *CursorValue(Cursor *cursor);
 
-/**
- * InternalNode的查找包含指定key的child
-*/
-uint32_t InternalNodeFindChild(void *node, uint32_t key);
-
-/**
- * 向parent节点中加入指定的child
-*/
-void InternalNodeInsert(Table *table, uint32_t parentPageNum, uint32_t childPageNum);
-
 #endif
