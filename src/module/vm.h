@@ -2,7 +2,8 @@
 #define DB_VISUAL_MACHINE_H
 
 #include "common.h"
-#include "db.h"
+#include "cursor.h"
+#include "table.h"
 
 /**
  * Statement类型枚举

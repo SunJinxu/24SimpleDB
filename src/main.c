@@ -2,17 +2,11 @@
 #include "stdlib.h"
 #include <string.h>
 #include "module/common.h"
+#include "module/util.h"
 #include "module/compiler.h"
 #include "module/vm.h"
-#include "module/db.h"
+#include "module/table.h"
 #include "module/pager.h"
-
-/**
- * 打印提示消息
-*/
-void PrintDbPrompt() {
-    printf(DB_PROMPT);
-}
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -51,6 +45,9 @@ int main(int argc, char *argv[]) {
                 switch (ExecuteStatement(&statement, table)) {
                     case EXECUTE_SUCCESS:
                         printf("executed.\n");
+                        break;
+                    case EXECUTE_DUPLICATE_KEY:
+                        printf("error! duplicate key.\n");
                         break;
                     case EXECUTE_FAIL:
                         printf("error! execute failed.\n");

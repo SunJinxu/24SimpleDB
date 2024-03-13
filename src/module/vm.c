@@ -1,14 +1,10 @@
 #include <string.h>
-#include "db.h"
+#include "util.h"
+#include "table.h"
 #include "cursor.h"
+#include "b_tree.h"
+#include "b_tree_helper.h"
 #include "vm.h"
-
-/**
- * Row的打印方法
-*/
-void PrintRow(Row *row) {
-    printf("ID: %d, USERNAME: %s, EMAIL: %s\n", row->id, row->username, row->email);
-}
 
 /**
  * 处理meta-commands
@@ -17,6 +13,14 @@ MetaCommandResult ExecuteMetaCommand(InputBuffer *InputBuffer, Table *table) {
     if (strcmp(InputBuffer->buffer, ".exit") == 0) {
         DbClose(table);
         exit(EXIT_SUCCESS);
+    } else if (strcmp(InputBuffer->buffer, ".constants") == 0) {
+        printf("Constants: \n");
+        PrintConstants();
+        return META_COMMAND_SUCCESS;
+    } else if(strcmp(InputBuffer->buffer, ".btree") == 0) {
+        printf("Tree:\n");
+        PrintTree(table->pager, 0, 0);
+        return META_COMMAND_SUCCESS;
     }
     return META_COMMAND_UNRECOGNIZED_COMMAND;
 }
@@ -25,15 +29,21 @@ MetaCommandResult ExecuteMetaCommand(InputBuffer *InputBuffer, Table *table) {
  * insert执行函数（插入至table最末尾）
 */
 ExecuteResult ExecuteInsert(Statement *statement, Table *table) {
-    if (table->rowNum >= TABLE_MAX_ROWS) {
-        return EXECUTE_TABLE_FULL;
+    void *node = GetPage(table->pager, table->rootPageNum);
+    uint32_t cellNums = *LeafNodeCellNums(node);
+
+    Row* rowToInsert = &(statement->rowToInsert);
+    uint32_t keyToInsert = rowToInsert->id;
+    Cursor* cursor = TableFind(table, keyToInsert);
+
+    if (cursor->cellNum < cellNums) {
+        uint32_t ketAtIndex = *LeafNodeKey(node, cursor->cellNum);
+        if (ketAtIndex == keyToInsert) {
+            return EXECUTE_DUPLICATE_KEY;
+        }
     }
-    Row *row = &(statement->rowToInsert);
-    Cursor *cursor = TableEnd(table);
-    void *slot = CursorValue(cursor);
-    SerializeRow(row, slot);
-    table->rowNum++;
-    free(cursor);
+
+    LeafNodeInsert(cursor, rowToInsert->id, rowToInsert);
     return EXECUTE_SUCCESS;
 }
 
@@ -65,3 +75,5 @@ ExecuteResult ExecuteStatement(Statement *statement, Table *table) {
     }
     return EXECUTE_FAIL;
 }
+
+

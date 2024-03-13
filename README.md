@@ -118,3 +118,52 @@ SQL中的command分为两种: 一种为`meta-commands`, 另一种为`普通comma
 * 创建位于table表头的cursor
 * 创建位于table末尾的cursor
 * 根据cursor返回其对应在内存page中的row的slot位置
+
+## 8 B-Tree leaf nodes format
+### 8.1 可以选择的表格式
+目前的无序行存储的优点在于它插入迅速，但是缺点是如果删除一行后，需要逐个移动后面的每一行进行填充，并且由于无序填充，进行查找时需要遍历查询，代价比较大。 
+
+B-Tree存储的特点在于，它的每个node中可以存放多个row，因此每个node中还需要保存一些元信息（保存有多少的row）。再加上一些不保存数据的内部节点，所占用的内存是很大的，但是好处在于它能换来更快的插入、查找、删除速度。
+
+`b_tree.h`头文件中描述了内部节点以及叶子节点的头布局和主体布局。
+
+### 8.2 如何访问节点中的key，value和metadata
+通过node的整体布局以及指针运算即可达到访问任意数据的目的
+
+### 8.3 对之前的代码作出哪些调整
+从整体来说，BTree的每个节点都是一个page，因此在进行持久化的时候，对于最后一个page，即使信息不满也不用刷新部分到磁盘，而是全部按页刷新。因此，简化了`PagerFlush`方法，每次都是刷新page。 
+
+由于`page`这个概念应当由`Pager`接管，因此不再需要`Table`中维护行数，而是`Pager`中维护其处理的`page`数量 
+
+`cursor`中也不再是对`table`中的`row`的指针，而是对`table`的`page`的`cell`的指针
+
+## 9 Binary Search and Duplicate Keys
+这章将会实现按主键顺序进行插入的功能，以此来实现加速查找行、拒绝重复主键的功能
+
+
+## 10 Splitting a Leaf Node
+第9章中，虽然将Page的布局改成了BTree LeafNode节点的形式，但是实际上目前还没有完全BTree结构，因为只构造了一个叶子节点，并且没有internal node的存在。  
+
+本节中将会加入internal node，并且加入节点的分裂过程。算法参考: `<<SQLite Database System: Design and Implementation>>`
+
+## 11 Recursively Searching the B-Tree
+在10节完成后，还缺少一个重要的功能，那就是`TableFind`搜索行时，除了`LeafNodeFind`之外，还需要加入跨越内部节点的搜索功能`InternalNodeFind`
+
+`InternalNodeFind`方法是用的也是二分查找动作，采用的是根据InternalNode中保存的Key和ChildPointer来实现的，在查找的过程中使用递归查找的方式，确保能够查找到最终的叶子节点。
+
+## 12 Scanning a Multi-Level B-Tree
+为了实现select语句快速扫描整个表，需要在叶子节点的头布局中加入一个指向相邻叶子节点的指针
+
+在TableStart方法获取到第一个叶子节点后，可以沿着指针扫描整个表
+
+## 13 Updating Parent Node After a split
+叶子节点满了之后，需要执行一系列动作，具体为：
+* 拆分叶子节点
+* 更新parent node中的cell信息
+
+## 14 SPliting Internal Nodes
+当继续插入节点后，可能会导致Internal node的分裂，此时需要执行以下几个步骤：
+* 将原有node进行拆分，创建一个sibling，保存1/2 - 1的原node的key，剩下的一个key作为父节点
+* 将原node的key迁移到新的sibling上
+* 更新原有node在parent中标记的maxKey（因为进行了分裂，所以不同了）
+* 将新的sibling也插入parent node中（可能导致parent node的分裂）
